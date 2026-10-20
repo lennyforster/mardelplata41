@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mi Mar del Plata 41</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Armá tu cronograma del 41° Festival de Mar del Plata arrastrando funciones. Avisa si se pisan o si no llegás de una sala a otra.">
+<meta name="description" content="Armá tu cronograma del 41° Festival de Mar del Plata y de Fuera de Campo arrastrando funciones. Avisa si se pisan o si no llegás de una sala a otra.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
@@ -15,7 +15,7 @@
   --bg:#F3F4F7; --panel:#FFFFFF; --raised:#EEF0F4; --line:#DFE3EA; --line-soft:#E9ECF1;
   --fg:#1B2130; --muted:#5B6474; --faint:#8A92A0;
   --accent:#9C1F72; --accent-ink:#FFFFFF;
-  --gold:#E8A400; --gold-bg:#FFF1C2; --gold-ink:#2E2000; --gold-tx:#8A6200; --blue:#1D5FC9; --blue-bg:#E2ECFB;
+  --gold:#E8A400; --gold-bg:#FFF1C2; --gold-ink:#2E2000; --gold-tx:#8A6200; --blue:#1D5FC9; --blue-bg:#E2ECFB; --mdp:#9C1F72; --mdp-bg:#F8E4F1;
   --sea:#0E7C86; --sea-bg:#DDF0F1;
   --red:#C2372B; --red-bg:#FBEDEC;
   --amber:#A8620A; --amber-bg:#FDEBD2;
@@ -30,7 +30,7 @@
   --bg:#121113; --panel:#1B1A1D; --raised:#252328; --line:#2F2C33; --line-soft:#262329;
   --fg:#EEEBF0; --muted:#ABA5B1; --faint:#7D7784;
   --accent:#EE8BDD; --accent-ink:#121113;
-  --gold:#F2B634; --gold-bg:#3A3017; --gold-ink:#1E1600; --gold-tx:#F5D07A; --blue:#7DB0FF; --blue-bg:#17243B;
+  --gold:#F2B634; --gold-bg:#3A3017; --gold-ink:#1E1600; --gold-tx:#F5D07A; --blue:#7DB0FF; --blue-bg:#17243B; --mdp:#EE8BDD; --mdp-bg:#341A30;
   --sea:#5CC8C2; --sea-bg:#1C3234;
   --red:#F2776D; --red-bg:#3A2224;
   --amber:#F0A453; --amber-bg:#3A2A18;
@@ -41,7 +41,7 @@
   --bg:#121113; --panel:#1B1A1D; --raised:#252328; --line:#2F2C33; --line-soft:#262329;
   --fg:#EEEBF0; --muted:#ABA5B1; --faint:#7D7784;
   --accent:#EE8BDD; --accent-ink:#121113;
-  --gold:#F2B634; --gold-bg:#3A3017; --gold-ink:#1E1600; --gold-tx:#F5D07A; --blue:#7DB0FF; --blue-bg:#17243B;
+  --gold:#F2B634; --gold-bg:#3A3017; --gold-ink:#1E1600; --gold-tx:#F5D07A; --blue:#7DB0FF; --blue-bg:#17243B; --mdp:#EE8BDD; --mdp-bg:#341A30;
   --sea:#5CC8C2; --sea-bg:#1C3234;
   --red:#F2776D; --red-bg:#3A2224;
   --amber:#F0A453; --amber-bg:#3A2A18;
@@ -62,8 +62,9 @@ button{font:inherit;color:inherit}
 .top{padding-block:28px 18px}
 .top .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 32px;align-items:end}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-h1{font-family:var(--display);font-weight:850;font-stretch:125%;font-size:clamp(40px,6vw,76px);line-height:.95;letter-spacing:-.035em;margin:0;text-wrap:balance}
+h1{font-family:var(--display);font-weight:850;font-stretch:125%;font-size:clamp(34px,5.2vw,68px);line-height:.95;letter-spacing:-.035em;margin:0;text-wrap:balance}
 h1 em{font-style:normal;color:var(--accent)}
+h1 .hm{color:var(--mdp)} h1 .hf{color:var(--blue)} h1 .amp{color:var(--faint);font-weight:500}
 .lede{margin:12px 0 0;max-width:58ch;color:var(--muted)}
 .tally{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .stat{min-width:96px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
@@ -75,7 +76,7 @@ h1 em{font-style:normal;color:var(--accent)}
 .btn:hover{border-color:var(--accent)}
 .btn.quiet{border-color:transparent;background:transparent;color:var(--muted)}
 .btn.quiet:hover{background:var(--raised);color:var(--fg)}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .btn.ghost{background:transparent}
 
 /* ---------- day strip ---------- */
@@ -118,7 +119,7 @@ h1 em{font-style:normal;color:var(--accent)}
 .card{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:12px;position:relative;touch-action:pan-y;height:100%}
 .card.l3{border-color:color-mix(in srgb,var(--gold) 60%,var(--line-soft));background:linear-gradient(135deg,var(--gold-bg),transparent 45%),var(--panel)}
 .card.l2{border-color:color-mix(in srgb,var(--sea) 45%,var(--line-soft));background:linear-gradient(135deg,var(--sea-bg),transparent 45%),var(--panel)}
-.card.picked{outline:2px solid var(--accent);outline-offset:-1px}
+.card.picked{outline:2px solid var(--fg);outline-offset:-1px}
 .card.clashes:not(.picked){opacity:.6}
 .card.clashes:not(.picked):hover{opacity:1}
 .pst{width:76px;aspect-ratio:3/4;max-width:100%;border-radius:8px;overflow:hidden;background:var(--raised);border:1px solid var(--line-soft);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:grid;place-items:center;position:relative}
@@ -133,7 +134,7 @@ h1 em{font-style:normal;color:var(--accent)}
 .tag.l3{background:var(--gold);color:var(--gold-ink)}
 .tag.l2{background:var(--sea-bg);color:var(--sea)}
 .tag.l1{color:var(--fg)}
-.tag.nac{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+.tag.nac{background:transparent;border:1px solid var(--line);color:var(--fg)}
 .card h3{font-family:var(--body);font-weight:800;font-size:18px;line-height:1.2;margin:6px 0 3px;text-wrap:balance;font-stretch:106%}
 .meta{margin:0;font-size:13px;color:var(--muted)}
 .meta .sala{color:var(--fg);font-weight:600}
@@ -155,7 +156,7 @@ h1 em{font-style:normal;color:var(--accent)}
 .note.info{background:var(--raised);color:var(--muted)}
 .add{border:1px solid var(--line);background:var(--raised);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;min-height:40px;margin-left:auto}
 .add:hover{border-color:var(--accent)}
-.card.picked .add{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.card.picked .add{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .empty{padding:30px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center}
 
 /* ---------- plan / timeline ---------- */
@@ -174,7 +175,7 @@ h1 em{font-style:normal;color:var(--accent)}
 .blk::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--faint)}
 .blk.l3::before{background:var(--gold)}
 .blk.l2::before{background:var(--sea)}
-.blk.l1::before{background:var(--accent)}
+.blk.l1::before{background:var(--muted)}
 .blk.fc{background:var(--blue-bg);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}
 .blk.fc .bs{color:var(--blue)}
 .card.fc{box-shadow:inset 4px 0 0 var(--blue)}
@@ -183,6 +184,38 @@ h1 em{font-style:normal;color:var(--accent)}
 .chip.b[aria-pressed="true"]{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
 .when .sala.fc{background:var(--blue-bg);color:var(--blue)}
 .wkrow .fcm{color:var(--blue);font-weight:700}
+.wkrow .mdm{color:var(--mdp);font-weight:700}
+.blk.mdp{background:var(--mdp-bg);border-color:color-mix(in srgb,var(--mdp) 40%,var(--line))}
+.blk.mdp .bs{color:var(--mdp)}
+.card.mdp{box-shadow:inset 4px 0 0 var(--mdp)}
+.card.mdp:not(.l3):not(.l2){background:linear-gradient(135deg,var(--mdp-bg),transparent 45%),var(--panel);border-color:color-mix(in srgb,var(--mdp) 30%,var(--line-soft))}
+.tag.mdp{background:var(--mdp);color:var(--bg)}
+.tag.fc{color:var(--bg)}
+.when .sala.mdp{background:var(--mdp-bg);color:var(--mdp)}
+.stat .fs{display:block;margin-top:2px;font-size:11px;color:var(--muted);white-space:nowrap}
+.stat .fs i{font-style:normal;font-weight:700}
+.stat .fs .m{color:var(--mdp)} .stat .fs .f{color:var(--blue)}
+.day .fdots{display:flex;gap:4px;margin-top:4px;height:6px}
+.day .fdots i{width:14px;height:5px;border-radius:3px;background:var(--line)}
+.day .fdots i.m{background:var(--mdp)} .day .fdots i.f{background:var(--blue)}
+.fests{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding-block:14px 0}
+.fest{display:grid;gap:2px;text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:12px 14px;cursor:pointer;position:relative;min-width:0}
+.fest .fn{font-family:var(--display);font-weight:800;font-stretch:112%;font-size:clamp(16px,2vw,22px);line-height:1.1;letter-spacing:-.01em}
+.fest .fd{font-size:12.5px;color:var(--muted)}
+.fest .fk{font-size:12.5px;font-weight:600;margin-top:4px}
+.fest .ck{position:absolute;top:10px;right:12px;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:800;line-height:1}
+.fest.mdp .fn,.fest.mdp .fk{color:var(--mdp)}
+.fest.fc .fn,.fest.fc .fk{color:var(--blue)}
+.fest.mdp[aria-pressed="true"]{border-color:var(--mdp);background:linear-gradient(135deg,var(--mdp-bg),transparent 70%),var(--panel)}
+.fest.fc[aria-pressed="true"]{border-color:var(--blue);background:linear-gradient(135deg,var(--blue-bg),transparent 70%),var(--panel)}
+.fest.mdp[aria-pressed="true"] .ck{background:var(--mdp);border-color:var(--mdp);color:var(--bg)}
+.fest.fc[aria-pressed="true"] .ck{background:var(--blue);border-color:var(--blue);color:var(--bg)}
+.fest[aria-pressed="false"]{opacity:.62;border-style:dashed}
+.fest[aria-pressed="false"] .ck{color:transparent}
+.festhint{grid-column:1/-1;margin:0;font-size:12px;color:var(--faint)}
+.legend .lg2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 18px;margin-top:2px}
+.legend .lg2 p{margin:0}
+.legend .lg2 .lm{color:var(--mdp)} .legend .lg2 .lf{color:var(--blue)}
 .blk .bt{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:6px;padding-right:22px;border-bottom:1px dashed var(--line);padding-bottom:3px;margin-bottom:2px}
 .blk .bn{font-weight:700;font-size:13.5px;line-height:1.15}
 .blk .bs{font-size:12px;color:var(--muted)}
@@ -261,7 +294,14 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
   .top{padding-block:18px 12px}
   .lede{display:none}
   .eyebrow{font-size:10.5px;letter-spacing:.06em}
-  h1{font-size:36px}
+  h1{font-size:30px}
+  .fests{gap:8px;padding-block:10px 0}
+  .fest{padding:10px 11px;border-radius:12px}
+  .fest .fn{font-size:15.5px;padding-right:20px}
+  .fest .fd,.fest .fk{font-size:11.5px}
+  .fest .ck{top:8px;right:8px;width:18px;height:18px}
+  .legend .lg2{grid-template-columns:minmax(0,1fr)}
+  .stat .fs{white-space:normal;font-size:10px;line-height:1.2}
   .top .wrap{gap:12px}
   .stat{padding:7px 8px;border-radius:9px}
   .stat b{font-size:21px}
@@ -285,8 +325,8 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
 <header class="top">
   <div class="wrap">
     <div>
-      <p class="eyebrow">41° Festival de Mar del Plata · 6 al 15 de nov. · <span style="color:var(--blue)">+ Fuera de Campo · 5 al 10 de nov.</span></p>
-      <h1>Mi Mar del Plata <em>41</em></h1>
+      <p class="eyebrow">Mi cronograma · dos festivales en simultáneo · noviembre de 2026</p>
+      <h1><span class="hm">Mar del Plata</span> <span class="amp">+</span> <span class="hf">Fuera de Campo</span></h1>
       <p class="lede">Elegí funciones con <b>+ Agregar</b> o arrastralas a tu día. Te avisa si dos se pisan o si no llegás de una sede a otra, con los tiempos a pie o en auto de Google Maps.</p>
     </div>
     <div>
@@ -303,13 +343,17 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
 <nav class="days" aria-label="Días del festival"><div class="wrap" id="days"></div></nav>
 
 <main class="wrap">
+  <div class="fests" role="group" aria-label="Festivales">
+    <button class="fest mdp" data-fest="mdp" aria-pressed="true" type="button"><span class="ck" aria-hidden="true">✓</span><span class="fn">41° Festival de Mar del Plata</span><span class="fd">6 al 15 de nov. · 5 sedes</span><span class="fk" id="fkMdp"></span></button>
+    <button class="fest fc" data-fest="fc" aria-pressed="true" type="button"><span class="ck" aria-hidden="true">✓</span><span class="fn">Fuera de Campo</span><span class="fd">5 al 10 de nov. · Teatro Enrique Carreras</span><span class="fk" id="fkFc"></span></button>
+    <p class="festhint">Tocá un festival para ver solo ese; tocalo de nuevo para ver los dos.</p>
+  </div>
   <div class="controls" role="group" aria-label="Filtros">
     <div class="chips">
       <button class="chip" data-f="all" aria-pressed="true" type="button">Todas</button>
       <button class="chip g" data-f="l3" aria-pressed="false" type="button">★★★ Imperdibles</button>
       <button class="chip s" data-f="l2" aria-pressed="false" type="button">★★ o más</button>
       <button class="chip" data-f="nac" aria-pressed="false" type="button">Nacionales</button>
-      <button class="chip b" data-f="fc" aria-pressed="false" type="button">Fuera de Campo</button>
     </div>
     <input class="search" id="q" type="search" placeholder="Buscar película, director, sala…" aria-label="Buscar">
     <div class="margin">
@@ -327,7 +371,7 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
       </select>
     </div>
   </div>
-    <details class="legend"><summary>¿Qué significan las estrellas?</summary><b>★★★ Imperdible:</b> premio mayor en Cannes, Venecia, Berlín, Sundance o Annecy 2026, u obra maestra clásica. <b>★★</b> premios o muy buena crítica en grandes festivales, clásicos importantes. <b>★</b> competencias oficiales y homenajes. Las notas «según el festival» salen de la ficha oficial.<br><b style="color:var(--blue)">Fuera de Campo (en azul):</b> como son películas más chicas, las estrellas miden el recorrido: estreno en Cannes, Venecia, Berlín, Locarno o San Sebastián, premios en el BAFICI, trayectoria del director y clásicos en fílmico.</details>
+    <details class="legend"><summary>¿Qué significan las estrellas?</summary><div class="lg2"><p><b class="lm">Mar del Plata (magenta):</b> <b>★★★</b> premio mayor en Cannes, Venecia, Berlín, Sundance o Annecy 2026, u obra maestra clásica. <b>★★</b> premios o muy buena crítica en grandes festivales, clásicos importantes. <b>★</b> competencias oficiales y homenajes. Las notas «según el festival» salen de la ficha oficial.</p><p><b class="lf">Fuera de Campo (azul):</b> como son películas más chicas, las estrellas miden el recorrido. <b>★★★</b> estreno o premio en Cannes, Venecia o el BAFICI, y directores de trayectoria. <b>★★</b> paso por Berlín, Locarno, San Sebastián y otros festivales, y clásicos en fílmico. <b>★</b> el resto.</p></div></details>
 
   <div class="board" id="board" data-view="list">
     <section class="listcol" aria-labelledby="listTitle">
@@ -389,6 +433,7 @@ S.forEach(s => { s.k = `${s.f}-${s.d}-${s.t}-${s.v}`; s.e = s.t + (F[s.f].m || 9
 const N3 = Object.values(F).filter(f => f.l === 3).length;
 const BYK = Object.fromEntries(S.map(s => [s.k, s]));
 const BYF = {}; S.forEach(s => (BYF[s.f] ||= []).push(s));
+const HASM = [], HASF = []; S.forEach(s => { if (F[s.f].fc) HASF[s.d] = 1; else HASM[s.d] = 1; });
 const hm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m/60)).padStart(2,"0") + ":" + String(m%60).padStart(2,"0"); };
 const dayLabel = d => DAYS[d][0] + " " + DAYS[d][1];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -421,7 +466,8 @@ let day = Math.min(ND - 1, Math.max(0, store.get("mdq41.day", 1)));
 let mode = store.get("mdq41.mode", "walk"); if (mode !== "walk" && mode !== "car") mode = "walk";
 let buf = +store.get("mdq41.buf", 10) || 10;
 let filter = "all", query = "";
-const save = () => { store.set("mdq41.plan", [...plan]); store.set("mdq41.day", day); store.set("mdq41.mode", mode); store.set("mdq41.buf", buf); };
+let fest = store.get("mdq41.fest", "both"); if (!["both","mdp","fc"].includes(fest)) fest = "both";
+const save = () => { store.set("mdq41.plan", [...plan]); store.set("mdq41.day", day); store.set("mdq41.mode", mode); store.set("mdq41.buf", buf); store.set("mdq41.fest", fest); };
 
 // ---------- conflict logic ----------
 function dayPlan(d){ return [...plan].map(k => BYK[k]).filter(s => s && s.d === d).sort((a,b) => a.t - b.t || a.e - b.e); }
@@ -470,7 +516,7 @@ function renderTally(){
   all.forEach(s => mins += s.e - s.t);
   const imp = new Set(all.filter(s => F[s.f].l === 3).map(s => s.f)).size;
   $("tally").innerHTML =
-    `<div class="stat"><b>${all.length}</b><span>funciones</span></div>` +
+    `<div class="stat"><b>${all.length}</b><span>funciones</span><span class="fs"><i class="m">${all.filter(s => !F[s.f].fc).length}</i> MdP · <i class="f">${all.filter(s => F[s.f].fc).length}</i> FdC</span></div>` +
     `<div class="stat"><b>${Math.round(mins/60)}</b><span>horas de cine</span></div>` +
     `<div class="stat"><b>${imp}/${N3}</b><span>imperdibles</span></div>` +
     `<div class="stat ${bad ? "bad" : ""}"><b>${bad}</b><span>${bad === 1 ? "choque" : "choques"}</span></div>`;
@@ -479,7 +525,7 @@ function renderDays(){
   $("days").innerHTML = DAYS.map((d,i) => {
     const it = dayPlan(i), a = analyze(it), bad = a.issues.some(x => x.type === "red");
     const cls = bad ? "bad" : it.length ? "on" : "";
-    return `<button class="day" type="button" data-d="${i}" aria-pressed="${i === day}"><small>${d[0]}</small><strong>${d[1]}</strong><span class="count ${cls}" aria-label="${it.length} elegidas">${it.length}</span></button>`;
+    return `<button class="day" type="button" data-d="${i}" aria-pressed="${i === day}"><small>${d[0]}</small><strong>${d[1]}</strong><span class="count ${cls}" aria-label="${it.length} elegidas">${it.length}</span><span class="fdots" aria-hidden="true">${HASM[i] ? `<i class="m"></i>` : ""}${HASF[i] ? `<i class="f"></i>` : ""}</span></button>`;
   }).join("");
 }
 function matches(s){
@@ -487,7 +533,8 @@ function matches(s){
   if (filter === "l3" && f.l < 3) return false;
   if (filter === "l2" && f.l < 2) return false;
   if (filter === "nac" && !f.a) return false;
-  if (filter === "fc" && !f.fc) return false;
+  if (fest === "fc" && !f.fc) return false;
+  if (fest === "mdp" && f.fc) return false;
   if (query){
     const hay = (f.t + " " + f.d + " " + f.p + " " + s.v + " " + f.s + " " + (f.y||"")).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
     if (!query.split(/\s+/).every(w => hay.includes(w))) return false;
@@ -500,7 +547,7 @@ function card(s, items){
   const tags = [];
   if (f.l) tags.push(`<span class="tag l${f.l}">${LV[f.l]}</span>`);
   if (f.fc) tags.unshift(`<span class="tag fc">Fuera de Campo</span>`);
-  else if (f.a) tags.push(`<span class="tag nac">Nacional</span>`);
+  else { tags.unshift(`<span class="tag mdp">Mar del Plata</span>`); if (f.a) tags.push(`<span class="tag nac">Nacional</span>`); }
   const others = (BYF[s.f] || []).filter(o => o !== s);
   const elsewhere = others.find(o => plan.has(o.k));
   const links = [];
@@ -517,10 +564,10 @@ function card(s, items){
   const pu = posterUrl(f);
   const initials = esc(f.t.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ0-9 ]/g, "").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase());
   const meta = (f.fc ? [f.m ? f.m + " min" : "", f.d, f.yr && f.yr < 2025 ? f.yr : "", f.fmt && f.fmt !== "DCP" ? f.fmt : ""] : [f.m ? f.m + " min" : "", f.d, f.p]).filter(Boolean).map(x => esc(String(x))).join(" · ");
-  return `<article class="card l${f.l} ${f.fc ? "fc" : ""} ${picked ? "picked" : ""} ${rel && rel.type === "red" ? "clashes" : ""}" data-k="${esc(s.k)}" data-drag="${esc(s.k)}">
+  return `<article class="card l${f.l} ${f.fc ? "fc" : "mdp"} ${picked ? "picked" : ""} ${rel && rel.type === "red" ? "clashes" : ""}" data-k="${esc(s.k)}" data-drag="${esc(s.k)}">
     <div class="pst" data-drag="${esc(s.k)}" title="Arrastrar a Mi día">${pu ? `<img src="${pu}" alt="" loading="lazy" decoding="async" width="76" height="101" onerror="this.remove()">` : ""}<span class="ph" aria-hidden="true">${initials}</span></div>
     <div class="cbody">
-      <div class="when"><b>${hm(s.t)}</b><span>→ ${hm(s.e)}</span><span class="sala ${f.fc ? "fc" : ""}">${esc(f.fc ? "Enrique Carreras" : s.v)}</span></div>
+      <div class="when"><b>${hm(s.t)}</b><span>→ ${hm(s.e)}</span><span class="sala ${f.fc ? "fc" : "mdp"}">${esc(f.fc ? "Enrique Carreras" : s.v)}</span></div>
       <h3>${esc(f.t)}</h3>
       <p class="meta">${meta}</p>
       ${tags.length ? `<div class="tags">${tags.join("")}</div>` : ""}
@@ -544,10 +591,17 @@ function renderList(){
     if (h !== lastH){ html += `<div class="hourmark">${String(h % 24).padStart(2,"0")} h</div>`; lastH = h; }
     html += c; shown++;
   }
-  $("list").innerHTML = html || `<div class="empty">No hay funciones con ese filtro este día.</div>`;
+  const fname = fest === "fc" ? "Fuera de Campo" : fest === "mdp" ? "Mar del Plata" : "";
+  const noneFest = fest === "fc" ? !HASF[day] : fest === "mdp" ? !HASM[day] : false;
+  $("list").innerHTML = html || `<div class="empty">${noneFest ? `${fname} no tiene funciones el ${dayLabel(day)}.` : "No hay funciones con ese filtro este día."}</div>`;
   $("listTitle").textContent = "Cartelera · " + dayLabel(day);
-  const tot = S.filter(s => s.d === day).length;
+  const dd = S.filter(s => s.d === day), tot = dd.length;
   $("listCount").textContent = shown === tot ? `${tot} funciones` : `${shown} de ${tot} funciones`;
+  const nm = dd.filter(s => !F[s.f].fc).length, nf = tot - nm;
+  const pm = dayPlan(day).filter(s => !F[s.f].fc).length, pf = dayPlan(day).length - pm;
+  $("fkMdp").textContent = nm ? `${nm} funciones este día${pm ? ` · ${pm} en tu día` : ""}` : "No tiene funciones este día";
+  $("fkFc").textContent = nf ? `${nf} funciones este día${pf ? ` · ${pf} en tu día` : ""}` : "No tiene funciones este día";
+  document.querySelectorAll(".fest").forEach(b => b.setAttribute("aria-pressed", String(fest === "both" || fest === b.dataset.fest)));
 }
 function renderPlan(preview){
   const items = dayPlan(day), a = analyze(items), tl = $("tl");
@@ -560,9 +614,9 @@ function renderPlan(preview){
   items.forEach((s,i) => { const prev = items.slice(0,i).filter(p => s.t < p.e); if (prev.length){ col[s.k] = "half2"; prev.forEach(p => col[p.k] ||= "half"); } });
   for (const s of items){
     const f = F[s.f], h = Math.max((s.e - s.t) * PX, 44);
-    html += `<div class="blk l${f.l} ${f.fc ? "fc" : ""} ${a.clash.has(s.k) ? "clash" : ""} ${col[s.k] || ""}" data-drag="${esc(s.k)}" data-inplan="1" style="top:${(s.t-T0)*PX}px;height:${h}px">
+    html += `<div class="blk l${f.l} ${f.fc ? "fc" : "mdp"} ${a.clash.has(s.k) ? "clash" : ""} ${col[s.k] || ""}" data-drag="${esc(s.k)}" data-inplan="1" style="top:${(s.t-T0)*PX}px;height:${h}px">
       <span class="bt"><span>${hm(s.t)}–${hm(s.e)}</span><span>${s.e - s.t} min</span></span>
-      <span class="bn">${esc(f.t)}</span><span class="bs">${f.fc ? "Fuera de Campo · Enrique Carreras" : esc(s.v)}</span>
+      <span class="bn">${esc(f.t)}</span><span class="bs">${f.fc ? "Fuera de Campo · Enrique Carreras" : "Mar del Plata · " + esc(s.v)}</span>
       <button class="x" type="button" data-remove="${esc(s.k)}" aria-label="Sacar ${esc(f.t)}">×</button></div>`;
   }
   for (const g of a.gaps){
@@ -615,6 +669,9 @@ function setDay(d){
 $("days").addEventListener("click", e => { const b = e.target.closest(".day"); if (b) setDay(+b.dataset.d); });
 document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
   filter = c.dataset.f; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x === c))); renderList();
+}));
+document.querySelectorAll(".fest").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.fest; fest = fest === k ? "both" : k; save(); renderList();
 }));
 $("q").addEventListener("input", e => { query = e.target.value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(); renderList(); });
 // tema claro/oscuro (como el visor)
@@ -694,11 +751,11 @@ document.addEventListener("pointercancel", e => { if (drag && drag.g){ drag.g.re
 
 // ---------- week & copy ----------
 function weekText(){
-  let out = "Mi 41° Festival de Mar del Plata + Fuera de Campo\n";
+  let out = "Mi cronograma · 41° Festival de Mar del Plata + Fuera de Campo\n";
   for (let d = 0; d < ND; d++){
     const it = dayPlan(d); if (!it.length) continue;
     out += `\n${dayLabel(d)}\n`;
-    it.forEach(s => out += `${hm(s.t)}–${hm(s.e)}  ${F[s.f].t} · ${F[s.f].fc ? "Fuera de Campo, Teatro Enrique Carreras" : s.v}\n`);
+    it.forEach(s => out += `${hm(s.t)}–${hm(s.e)}  ${F[s.f].t} · ${F[s.f].fc ? "Fuera de Campo, Teatro Enrique Carreras" : "Mar del Plata, " + s.v}\n`);
   }
   return out;
 }
@@ -707,7 +764,7 @@ function openWeek(showText){
   for (let d = 0; d < ND; d++){
     const it = dayPlan(d), a = analyze(it);
     html += `<div class="wkday"><h3>${dayLabel(d)} <button type="button" data-goto="${d}">${it.length ? "Editar" : "Elegir funciones"}</button></h3>` +
-      (it.length ? it.map(s => `<div class="wkrow ${a.clash.has(s.k) ? "bad" : ""}"><span class="tm">${hm(s.t)}–${hm(s.e)}</span><span><b>${esc(F[s.f].t)}</b>${F[s.f].l === 3 ? " · ★★★" : ""}</span><span class="sl">${F[s.f].fc ? `<span class="fcm">FdC</span> · Enrique Carreras` : esc(s.v)}</span></div>`).join("")
+      (it.length ? it.map(s => `<div class="wkrow ${a.clash.has(s.k) ? "bad" : ""}"><span class="tm">${hm(s.t)}–${hm(s.e)}</span><span><b>${esc(F[s.f].t)}</b>${F[s.f].l === 3 ? " · ★★★" : ""}</span><span class="sl">${F[s.f].fc ? `<span class="fcm">FdC</span> · Enrique Carreras` : `<span class="mdm">MdP</span> · ${esc(s.v)}`}</span></div>`).join("")
         : `<div class="wkrow"><span class="tm">—</span><span style="color:var(--muted)">Día libre</span></div>`) + `</div>`;
   }
   $("wk").innerHTML = html;
