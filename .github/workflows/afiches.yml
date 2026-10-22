@@ -1,0 +1,57 @@
+name: Afiches
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/afiches.yml']
+permissions:
+  contents: write
+jobs:
+  afiches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow
+      - name: Bajar afiches
+        run: |
+          python3 - <<'PY'
+          import json, re, os, io, urllib.request, urllib.parse
+          from PIL import Image, ImageOps
+          html = open('index.html', encoding='utf-8').read()
+          data = json.loads(re.search(r'const DATA = (\{.*?\});\nconst F', html, re.S).group(1))
+          base = 'https://mardelplatafilmfest.com/41/wp-json/mdqfp/v1/proxy-image?url=' + urllib.parse.quote('https://api-festival-mdq.incaa.gob.ar/api/v1/resources/image/', safe='')
+          os.makedirs('posters', exist_ok=True)
+          bad = []
+          def get(u):
+              r = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
+              return urllib.request.urlopen(r, timeout=40).read()
+          for k, f in data['films'].items():
+              src = f.get('pi') or (base + urllib.parse.quote(f['po'], safe='') if f.get('po') else None)
+              if not src:
+                  continue
+              out = 'posters/' + k + '.webp'
+              if os.path.exists(out):
+                  continue
+              b, err = None, ''
+              for u in (src, 'https://wsrv.nl/?url=' + urllib.parse.quote(src, safe='')):
+                  try:
+                      b = get(u)
+                      Image.open(io.BytesIO(b)).verify()
+                      break
+                  except Exception as e:
+                      b, err = None, str(e)
+              if not b:
+                  bad.append(k + ' ' + err)
+                  continue
+              im = Image.open(io.BytesIO(b)).convert('RGB')
+              im = ImageOps.fit(im, (152, 202), Image.LANCZOS)
+              im.save(out, 'WEBP', quality=72, method=6)
+          open('posters/faltan.txt', 'w').write('\n'.join(bad) + '\n')
+          print(len(os.listdir('posters')), 'archivos;', len(bad), 'fallaron')
+          PY
+      - name: Guardar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posters
+          git commit -m "Afiches propios" || echo "sin cambios"
+          git push
