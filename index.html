@@ -165,6 +165,8 @@ h1 .hm{color:var(--mdp)} h1 .hf{color:var(--blue)} h1 .amp{color:var(--faint);fo
 .skip + .add{margin-left:0}
 .toast .undo{border:0;background:transparent;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:0 0 0 6px}
 .chip.hidchip{border-style:dashed}
+.card.dim{opacity:.42;filter:grayscale(1);transition:opacity .15s}
+.card.dim:hover,.card.dim:focus-within{opacity:.75}
 .card.picked .add{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .empty{padding:30px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center}
 
@@ -573,8 +575,7 @@ function renderDays(){
 }
 function matches(s){
   const f = F[s.f];
-  if (filter === "hid") { if (!hidden.has(s.f)) return false; }
-  else if (hidden.has(s.f)) return false;
+  if (filter === "hid" && !hidden.has(s.f)) return false;
   if (filter === "l3" && f.l < 3) return false;
   if (filter === "l2" && f.l < 2) return false;
   if (filter === "nac" && !f.a) return false;
@@ -610,7 +611,7 @@ function card(s, items){
   const pu = (f.pi || f.po) ? "posters/" + encodeURIComponent(s.f) + ".webp" : "", pr = posterUrl(f);
   const initials = esc(f.t.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ0-9 ]/g, "").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase());
   const meta = (f.fc ? [f.m ? f.m + " min" : "", f.d, f.yr && f.yr < 2025 ? f.yr : "", f.fmt && f.fmt !== "DCP" ? f.fmt : ""] : [f.m ? f.m + " min" : "", f.d, f.p]).filter(Boolean).map(x => esc(String(x))).join(" · ");
-  return `<article class="card l${f.l} ${f.fc ? "fc" : "mdp"} ${picked ? "picked" : ""} ${rel && rel.type === "red" ? "clashes" : ""}" data-k="${esc(s.k)}" data-drag="${esc(s.k)}">
+  return `<article class="card l${f.l} ${hidden.has(s.f) ? "dim" : ""} ${f.fc ? "fc" : "mdp"} ${picked ? "picked" : ""} ${rel && rel.type === "red" ? "clashes" : ""}" data-k="${esc(s.k)}" data-drag="${esc(s.k)}">
     <div class="pst" data-drag="${esc(s.k)}" title="Arrastrar a Mi día">${pu ? `<img src="${pu}" alt="" loading="lazy" decoding="async" width="76" height="101" data-alt="${esc(pr)}" onerror="if(this.dataset.alt&&!this.dataset.tried){this.dataset.tried=1;this.src=this.dataset.alt}else this.remove()">` : ""}<span class="ph" aria-hidden="true">${initials}</span></div>
     <div class="cbody">
       <div class="when"><b>${hm(s.t)}</b><span>→ ${hm(s.e)}</span><span class="sala ${f.fc ? "fc" : "mdp"}">${esc(f.fc ? "Enrique Carreras" : s.v)}</span></div>
@@ -644,8 +645,7 @@ function renderList(){
   $("hidChip").hidden = !hidden.size && filter !== "hid";
   $("hidChip").textContent = `Descartadas · ${hidden.size}`;
   const dd = S.filter(s => s.d === day), tot = dd.length;
-  const nh = filter === "hid" ? 0 : dd.filter(s => hidden.has(s.f)).length;
-  $("listCount").textContent = (shown === tot ? `${tot} funciones` : `${shown} de ${tot} funciones`) + (nh ? ` · ${nh} descartadas` : "");
+  $("listCount").textContent = shown === tot ? `${tot} funciones` : `${shown} de ${tot} funciones`;
   const nm = dd.filter(s => !F[s.f].fc).length, nf = tot - nm;
   const pm = dayPlan(day).filter(s => !F[s.f].fc).length, pf = dayPlan(day).length - pm;
   $("fkMdp").textContent = nm ? `${nm} funciones este día${pm ? ` · ${pm} en tu día` : ""}` : "No tiene funciones este día";
