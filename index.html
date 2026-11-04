@@ -953,6 +953,7 @@ function cloudApply(r){
   const uid = await user.id();
   if (!uid) return;
   cloud = db.doc("data/users/" + uid + "/estado");
+  $("xferBtn").hidden = true; // acá se sincroniza solo: el link para pasar al celu no hace falta
   setSync("Conectando…");
   let first = true;
   const slow = setTimeout(() => setSync("Sin conexión: se guarda en este dispositivo", "bad"), 10000);
