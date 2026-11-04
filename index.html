@@ -258,6 +258,9 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
 .qr .qrerr{color:#333;font-size:13px}
 .xferlink{width:100%;font:12px var(--mono);border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--raised);color:var(--fg)}
 .xferact{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.sync{font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap;align-self:center}
+.sync.ok{color:var(--sea)}
+.sync.bad{color:#c2410c}
 .sheet{position:fixed;inset:0;z-index:60;background:rgba(5,10,16,.55);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .sheetbox{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:min(720px,100%);max-height:100%;overflow:auto;box-shadow:var(--shadow);padding:20px 22px 22px}
 .sheetbox h2{font-family:var(--display);font-weight:850;font-stretch:125%;letter-spacing:-.03em;font-size:34px;margin:0}
@@ -352,6 +355,7 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
     <div>
       <div class="tally" id="tally"></div>
       <div class="actions">
+        <span class="sync" id="syncState" hidden aria-live="polite"></span>
         <button class="btn quiet" id="themeBtn" type="button" title="Cambiar entre fondo claro y oscuro" aria-label="Cambiar entre fondo claro y oscuro">◐</button>
         <button class="btn" id="weekBtn" type="button">Mi semana</button>
         <button class="btn" id="xferBtn" type="button" title="Pasar tu cronograma a otro dispositivo">Pasar al celu</button>
@@ -512,7 +516,10 @@ let buf = +store.get("mdq41.buf", 10) || 10;
 let filter = "all", query = "";
 let hidden = new Set((store.get("mdq41.hide", null) || []).filter(f => F[f]));
 let fest = store.get("mdq41.fest", "both"); if (!["both","mdp","fc"].includes(fest)) fest = "both";
-const save = () => { store.set("mdq41.plan", [...plan]); store.set("mdq41.day", day); store.set("mdq41.mode", mode); store.set("mdq41.buf", buf); store.set("mdq41.fest", fest); store.set("mdq41.hide", [...hidden]); };
+const save = () => { store.set("mdq41.plan", [...plan]); store.set("mdq41.day", day); store.set("mdq41.mode", mode); store.set("mdq41.buf", buf); store.set("mdq41.fest", fest); store.set("mdq41.hide", [...hidden]);
+  const sg = JSON.stringify([[...plan].sort(), [...hidden].sort()]);
+  if (sg !== store.get("mdq41.sig", "")){ store.set("mdq41.sig", sg); store.set("mdq41.ts", Date.now()); if (typeof cloudSchedule === "function") cloudSchedule(); }
+};
 
 // ---------- conflict logic ----------
 function dayPlan(d){ return [...plan].map(k => BYK[k]).filter(s => s && s.d === d).sort((a,b) => a.t - b.t || a.e - b.e); }
@@ -912,6 +919,64 @@ function importFromHash(){
 }
 importFromHash();
 window.addEventListener("hashchange", importFromHash);
+
+// ---------- sincronización entre dispositivos (solo en la versión de claude.ai) ----------
+// En GitHub Pages no hay window.claude y todo sigue guardándose solo en el navegador.
+var cloud = null, cloudBusy = false, cloudAgain = false, cloudSent = "", cloudTimer = 0;
+const cloudBody = () => ({ plan: [...plan].sort(), hide: [...hidden].sort(), ts: store.get("mdq41.ts", 0) });
+const cloudSig = b => JSON.stringify([b.plan || [], b.hide || []]);
+function setSync(txt, cls){ const el = $("syncState"); el.textContent = txt; el.className = "sync " + (cls || ""); el.hidden = false; }
+async function cloudWrite(){
+  if (!cloud) return;
+  if (cloudBusy){ cloudAgain = true; return; }
+  const b = cloudBody(), sg = cloudSig(b);
+  if (sg === cloudSent) return;
+  cloudBusy = true; setSync("Guardando…");
+  try { await cloud.set(b); cloudSent = sg; setSync("☁ Sincronizado", "ok"); }
+  catch(e){ setSync("Sin sincronizar: quedó en este dispositivo", "bad"); }
+  cloudBusy = false;
+  if (cloudAgain){ cloudAgain = false; cloudWrite(); }
+}
+function cloudSchedule(){ if (!cloud) return; clearTimeout(cloudTimer); cloudTimer = setTimeout(cloudWrite, 700); }
+function cloudApply(r){
+  plan = new Set((r.plan || []).filter(k => BYK[k]));
+  hidden = new Set((r.hide || []).filter(f => F[f]));
+  seeded = false;
+  store.set("mdq41.plan", [...plan]); store.set("mdq41.hide", [...hidden]);
+  store.set("mdq41.sig", cloudSig(cloudBody())); store.set("mdq41.ts", r.ts || Date.now());
+  render();
+}
+(async () => {
+  if (!window.claude || typeof window.claude.use !== "function") return;
+  const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+  if (!db || !user) return;
+  const uid = await user.id();
+  if (!uid) return;
+  cloud = db.doc("data/users/" + uid + "/estado");
+  setSync("Conectando…");
+  let first = true;
+  const slow = setTimeout(() => setSync("Sin conexión: se guarda en este dispositivo", "bad"), 10000);
+  cloud.onSnapshot(snap => {
+    if (snap.metadata.hasPendingWrites) return;
+    const confirmed = !snap.metadata.fromCache;
+    if (confirmed) clearTimeout(slow);
+    const r = snap.exists ? snap.data() : null;
+    const local = cloudBody();
+    if (!r){
+      if (confirmed && first){ first = false; if (!seeded || hidden.size) cloudWrite(); else setSync("☁ Sincronizado", "ok"); }
+      return;
+    }
+    const rs = cloudSig(r);
+    if (rs === cloudSig(local)){ cloudSent = rs; if (confirmed){ setSync("☁ Sincronizado", "ok"); first = false; } return; }
+    // Difieren: gana el cambio más reciente. Un dispositivo nuevo, sin nada tocado, siempre toma lo guardado.
+    if ((r.ts || 0) >= (local.ts || 0) || (first && seeded)){
+      cloudSent = rs; cloudApply(r);
+      if (!first) toast("Se actualizó con lo que cambiaste en tu otro dispositivo");
+      if (confirmed) setSync("☁ Sincronizado", "ok");
+    } else if (confirmed) cloudWrite();
+    if (confirmed) first = false;
+  }, () => setSync("Sin sincronizar: quedó en este dispositivo", "bad"));
+})();
 
 render();
 setTimeout(() => { const it = dayPlan(day); scrollPlanTo(it.length ? it[0].t : 12*60); }, 60);
