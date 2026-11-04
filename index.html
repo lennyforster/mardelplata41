@@ -160,6 +160,11 @@ h1 .hm{color:var(--mdp)} h1 .hf{color:var(--blue)} h1 .amp{color:var(--faint);fo
 .note.info{background:var(--raised);color:var(--muted)}
 .add{border:1px solid var(--line);background:var(--raised);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;min-height:40px;margin-left:auto}
 .add:hover{border-color:var(--accent)}
+.skip{border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;padding:9px 6px;min-height:40px;margin-left:auto;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.skip:hover{color:var(--fg)}
+.skip + .add{margin-left:0}
+.toast .undo{border:0;background:transparent;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:0 0 0 6px}
+.chip.hidchip{border-style:dashed}
 .card.picked .add{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .empty{padding:30px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center}
 
@@ -368,6 +373,7 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
       <button class="chip g" data-f="l3" aria-pressed="false" type="button">★★★ Imperdibles</button>
       <button class="chip s" data-f="l2" aria-pressed="false" type="button">★★ o más</button>
       <button class="chip" data-f="nac" aria-pressed="false" type="button">Nacionales</button>
+      <button class="chip hidchip" data-f="hid" aria-pressed="false" type="button" id="hidChip" hidden>Descartadas</button>
     </div>
     <input class="search" id="q" type="search" placeholder="Buscar película, director, sala…" aria-label="Buscar">
     <div class="margin">
@@ -409,7 +415,7 @@ body.dragging .plan{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in
 <div class="sheet" id="xfer" hidden>
   <div class="sheetbox xferbox" role="dialog" aria-modal="true" aria-labelledby="xferTitle">
     <div class="row"><h2 id="xferTitle">Pasar al celu</h2><button class="btn" id="xferClose" type="button">Cerrar</button></div>
-    <p class="xferlede">Escaneá el código con la cámara del celu, o mandate el link. Al abrirlo, tu cronograma se guarda en ese dispositivo.</p>
+    <p class="xferlede">Escaneá el código con la cámara del celu, o mandate el link. Al abrirlo, tu cronograma y tus descartadas se guardan en ese dispositivo.</p>
     <div class="qr" id="qr" aria-label="Código QR con tu cronograma"></div>
     <input class="xferlink" id="xferLink" readonly aria-label="Link con tu cronograma">
     <div class="xferact">
@@ -502,8 +508,9 @@ let day = Math.min(ND - 1, Math.max(0, store.get("mdq41.day", 1)));
 let mode = store.get("mdq41.mode", "walk"); if (mode !== "walk" && mode !== "car") mode = "walk";
 let buf = +store.get("mdq41.buf", 10) || 10;
 let filter = "all", query = "";
+let hidden = new Set((store.get("mdq41.hide", null) || []).filter(f => F[f]));
 let fest = store.get("mdq41.fest", "both"); if (!["both","mdp","fc"].includes(fest)) fest = "both";
-const save = () => { store.set("mdq41.plan", [...plan]); store.set("mdq41.day", day); store.set("mdq41.mode", mode); store.set("mdq41.buf", buf); store.set("mdq41.fest", fest); };
+const save = () => { store.set("mdq41.plan", [...plan]); store.set("mdq41.day", day); store.set("mdq41.mode", mode); store.set("mdq41.buf", buf); store.set("mdq41.fest", fest); store.set("mdq41.hide", [...hidden]); };
 
 // ---------- conflict logic ----------
 function dayPlan(d){ return [...plan].map(k => BYK[k]).filter(s => s && s.d === d).sort((a,b) => a.t - b.t || a.e - b.e); }
@@ -566,6 +573,8 @@ function renderDays(){
 }
 function matches(s){
   const f = F[s.f];
+  if (filter === "hid") { if (!hidden.has(s.f)) return false; }
+  else if (hidden.has(s.f)) return false;
   if (filter === "l3" && f.l < 3) return false;
   if (filter === "l2" && f.l < 2) return false;
   if (filter === "nac" && !f.a) return false;
@@ -613,7 +622,7 @@ function card(s, items){
       ${f.fc ? `${f.y ? `<p class="syn" data-syn title="Tocá para leer más">${esc(f.y)}</p>` : ""}${f.mem ? `<p class="mem">Antes, ${f.mem.length > 1 ? "los cortos" : "el corto"} ${f.mem.map(m => `<a href="${esc(m[1])}" target="_blank" rel="noopener">${esc(m[0])}</a>`).join(" y ")} (ya incluido en el horario)</p>` : ""}` : f.mem ? `<p class="mem">Incluye: ${f.mem.map(m => `<a href="https://mardelplatafilmfest.com/41/es/programas/?film_id=${m[1]}" target="_blank" rel="noopener">${esc(m[0])}</a>`).join(" · ")}</p>` : (f.y ? `<p class="syn" data-syn title="Tocá para leer más">${esc(f.y)}</p>` : "")}
       ${others.length ? `<p class="also">Otras funciones: ${others.map(o => `${dayLabel(o.d)} ${hm(o.t)} · ${esc(o.v)}`).join(" — ")}</p>` : ""}
       ${note}
-      <div class="foot2"><div class="links">${links.join("")}</div><button class="add" type="button" data-toggle="${esc(s.k)}">${picked ? "✓ En mi día" : "+ Agregar"}</button></div>
+      <div class="foot2"><div class="links">${links.join("")}</div>${hidden.has(s.f) ? `<button class="skip" type="button" data-unhide="${esc(s.f)}">Recuperar</button>` : picked ? "" : `<button class="skip" type="button" data-hide="${esc(s.f)}" title="Ocultar todas las funciones de esta película">No me interesa</button>`}<button class="add" type="button" data-toggle="${esc(s.k)}">${picked ? "✓ En mi día" : "+ Agregar"}</button></div>
     </div>
   </article>`;
 }
@@ -630,10 +639,13 @@ function renderList(){
   }
   const fname = fest === "fc" ? "Fuera de Campo" : fest === "mdp" ? "Mar del Plata" : "";
   const noneFest = fest === "fc" ? !HASF[day] : fest === "mdp" ? !HASM[day] : false;
-  $("list").innerHTML = html || `<div class="empty">${noneFest ? `${fname} no tiene funciones el ${dayLabel(day)}.` : "No hay funciones con ese filtro este día."}</div>`;
-  $("listTitle").textContent = "Cartelera · " + dayLabel(day);
+  $("list").innerHTML = html || `<div class="empty">${noneFest ? `${fname} no tiene funciones el ${dayLabel(day)}.` : (filter === "hid" ? (hidden.size ? "No descartaste nada que pase este día." : "Todavía no descartaste ninguna película.") : "No hay funciones con ese filtro este día.")}</div>`;
+  $("listTitle").textContent = (filter === "hid" ? "Descartadas · " : "Cartelera · ") + dayLabel(day);
+  $("hidChip").hidden = !hidden.size && filter !== "hid";
+  $("hidChip").textContent = `Descartadas · ${hidden.size}`;
   const dd = S.filter(s => s.d === day), tot = dd.length;
-  $("listCount").textContent = shown === tot ? `${tot} funciones` : `${shown} de ${tot} funciones`;
+  const nh = filter === "hid" ? 0 : dd.filter(s => hidden.has(s.f)).length;
+  $("listCount").textContent = (shown === tot ? `${tot} funciones` : `${shown} de ${tot} funciones`) + (nh ? ` · ${nh} descartadas` : "");
   const nm = dd.filter(s => !F[s.f].fc).length, nf = tot - nm;
   const pm = dayPlan(day).filter(s => !F[s.f].fc).length, pf = dayPlan(day).length - pm;
   $("fkMdp").textContent = nm ? `${nm} funciones este día${pm ? ` · ${pm} en tu día` : ""}` : "No tiene funciones este día";
@@ -683,7 +695,11 @@ function renderPlan(preview){
 function render(){ renderTally(); renderDays(); renderList(); renderPlan(); }
 
 // ---------- actions ----------
-function toast(msg){ const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 2200); }
+function toast(msg, undo){
+  const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h);
+  if (undo){ const b = document.createElement("button"); b.type = "button"; b.className = "undo"; b.textContent = "Deshacer"; b.onclick = () => { t.hidden = true; undo(); }; t.append(" ", b); }
+  toast.h = setTimeout(() => t.hidden = true, undo ? 4500 : 2200);
+}
 function add(k){
   if (!BYK[k] || plan.has(k)) return;
   plan.add(k); seeded = false; save(); render();
@@ -729,6 +745,10 @@ $("distBody").innerHTML = `<table><thead><tr><th>Desde ↓ / hasta →</th>${SED
 $("list").addEventListener("click", e => {
   const t = e.target.closest("[data-toggle]");
   if (t){ const k = t.dataset.toggle; plan.has(k) ? remove(k) : add(k); return; }
+  const h = e.target.closest("[data-hide]");
+  if (h){ const f = h.dataset.hide; hidden.add(f); save(); render(); toast(`Descartaste ${F[f].t}`, () => { hidden.delete(f); save(); render(); }); return; }
+  const u = e.target.closest("[data-unhide]");
+  if (u){ const f = u.dataset.unhide; hidden.delete(f); save(); if (filter === "hid" && !hidden.size){ filter = "all"; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.f === "all"))); } render(); toast(`Recuperaste ${F[f].t}`); return; }
   const syn = e.target.closest("[data-syn]"); if (syn) syn.classList.toggle("open");
 });
 $("tl").addEventListener("click", e => { const r = e.target.closest("[data-remove]"); if (r) remove(r.dataset.remove); });
@@ -828,9 +848,12 @@ $("copyBtn").addEventListener("click", () => {
 // El link lleva una copia del cronograma en el #hash (no viaja a ningún servidor).
 const XKEYS = Object.keys(BYK).sort();
 const XIDX = Object.fromEntries(XKEYS.map((k, i) => [k, i]));
+const XFILMS = Object.keys(F).sort();
+const XFIDX = Object.fromEntries(XFILMS.map((k, i) => [k, i]));
 function xferUrl(){
   const ids = [...plan].map(k => XIDX[k]).filter(i => i !== undefined).sort((a, b) => a - b).map(i => i.toString(36));
-  return location.origin + location.pathname + "#cron=1-" + XKEYS.length.toString(36) + "-" + ids.join(".");
+  const hs = [...hidden].map(f => XFIDX[f]).filter(i => i !== undefined).sort((a, b) => a - b).map(i => i.toString(36));
+  return location.origin + location.pathname + "#cron=2-" + XKEYS.length.toString(36) + "-" + ids.join(".") + "-" + XFILMS.length.toString(36) + "-" + hs.join(".");
 }
 function loadQR(){
   if (window.QRCode) return Promise.resolve();
@@ -844,7 +867,7 @@ function loadQR(){
   return loadQR.p;
 }
 function openXfer(){
-  if (!plan.size){ toast("Todavía no elegiste funciones"); return; }
+  if (!plan.size && !hidden.size){ toast("Todavía no elegiste ni descartaste nada"); return; }
   const url = xferUrl();
   $("xferLink").value = url;
   $("xferShare").hidden = !navigator.share;
@@ -866,20 +889,26 @@ $("xferCopy").addEventListener("click", () => {
 });
 $("xferShare").addEventListener("click", () => { navigator.share({ title: "Mi cronograma", url: $("xferLink").value }).catch(() => {}); });
 function importFromHash(){
-  const mm = /^#cron=1-([0-9a-z]+)-([0-9a-z.]*)$/.exec(location.hash);
+  const mm = /^#cron=(1|2)-([0-9a-z]+)-([0-9a-z.]*)(?:-([0-9a-z]+)-([0-9a-z.]*))?$/.exec(location.hash);
   if (!mm) return;
   history.replaceState(null, "", location.pathname + location.search);
-  if (parseInt(mm[1], 36) !== XKEYS.length){ toast("Ese link es de otra versión de la web: generalo de nuevo"); return; }
-  const keys = mm[2] ? mm[2].split(".").map(x => XKEYS[parseInt(x, 36)]).filter(Boolean) : [];
-  if (!keys.length){ toast("El link no trae funciones"); return; }
-  const same = keys.length === plan.size && keys.every(k => plan.has(k));
-  if (same){ toast("Ya tenías este mismo cronograma"); return; }
-  if (plan.size && !seeded && !confirm(`¿Reemplazar el cronograma de este dispositivo (${plan.size} funciones) por el que te pasaste (${keys.length})?`)) return;
+  if (parseInt(mm[2], 36) !== XKEYS.length || (mm[4] && parseInt(mm[4], 36) !== XFILMS.length)){ toast("Ese link es de otra versión de la web: generalo de nuevo"); return; }
+  const keys = mm[3] ? mm[3].split(".").map(x => XKEYS[parseInt(x, 36)]).filter(Boolean) : [];
+  const hids = mm[5] ? mm[5].split(".").map(x => XFILMS[parseInt(x, 36)]).filter(Boolean) : null;
+  if (!keys.length && !(hids && hids.length)){ toast("El link no trae nada"); return; }
+  const samePlan = keys.length === plan.size && keys.every(k => plan.has(k));
+  const sameHid = !hids || (hids.length === hidden.size && hids.every(f => hidden.has(f)));
+  if (samePlan && sameHid){ toast("Ya tenías esto mismo"); return; }
+  const what = `${keys.length} funciones` + (hids ? ` y ${hids.length} descartadas` : "");
+  if ((plan.size && !seeded) || hidden.size){
+    if (!confirm(`¿Reemplazar lo que tenés en este dispositivo (${plan.size} funciones, ${hidden.size} descartadas) por lo que te pasaste (${what})?`)) return;
+  }
   plan = new Set(keys); seeded = false;
+  if (hids) hidden = new Set(hids);
   const first = keys.map(k => BYK[k]).sort((a, b) => a.d - b.d || a.t - b.t)[0];
   if (first) day = first.d;
   save(); render();
-  toast(`Listo: cargaste ${keys.length} funciones`);
+  toast(`Listo: cargaste ${what}`);
 }
 importFromHash();
 window.addEventListener("hashchange", importFromHash);
